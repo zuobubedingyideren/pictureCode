@@ -6,7 +6,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 
 @SpringBootApplication
-@MapperScan("com.px.pictureend")
+@MapperScan("com.px.pictureend.mapper")
 @EnableAspectJAutoProxy(exposeProxy = true)
 public class PictureEndApplication {
 
