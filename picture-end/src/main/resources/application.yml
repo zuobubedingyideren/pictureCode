@@ -12,3 +12,27 @@ spring:
     password: root
 
 
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: false
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+    global-config:
+      db-config:
+        logic-delete-value: 1
+        logic-not-delete-value: 0
+        logic-delete-field: isDeleted
+
+
+# 接口文档配置
+knife4j:
+  enable: true
+  openapi:
+    title: "接口文档"
+    version: 1.0
+    group:
+      default:
+        api-rule: package
+        api-rule-resources:
+          - com.px.pictureend.controller
+
+
