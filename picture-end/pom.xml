@@ -112,7 +112,7 @@
                 <version>${spring-boot.version}</version>
                 <configuration>
                     <mainClass>com.px.pictureend.PictureEndApplication</mainClass>
-                    <skip>true</skip>
+<!--                    <skip>true</skip>-->
                 </configuration>
                 <executions>
                     <execution>
