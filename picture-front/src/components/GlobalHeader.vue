@@ -20,7 +20,20 @@
       <a-col flex="120px">
         <div class="user-login-status">
           <div v-if="loginUserStore.loginUser.id">
-            {{ loginUserStore.loginUser.userName ?? '无名' }}
+            <a-dropdown>
+              <a-space>
+                <a-avatar :src="loginUserStore.loginUser.userAvatar" />
+                {{ loginUserStore.loginUser.userName ?? '无名' }}
+                <template #overlay>
+                  <a-menu>
+                    <a-menu-item @click="doLogout">
+                      <LogoutOutlined />
+                      退出登录
+                    </a-menu-item>
+                  </a-menu>
+                </template>
+              </a-space>
+            </a-dropdown>
           </div>
           <div v-else>
             <a-button type="primary" href="/user/login">登录</a-button>
@@ -32,7 +45,7 @@
 </template>
 <script lang="ts" setup>
 import { h, ref } from 'vue'
-import { HomeOutlined } from '@ant-design/icons-vue'
+import { HomeOutlined ,LogoutOutlined} from '@ant-design/icons-vue'
 import type { MenuProps } from 'ant-design-vue'
 import { useRouter } from 'vue-router'
 import { useLoginUserStore } from '@/stores/useLoginUserStore'
@@ -71,6 +84,19 @@ const doMenuClick = ({ key }: { key: string }) => {
   router.push({
     path: key,
   })
+}
+
+// 用户注销功能
+const doLogout = async () => {
+  const res = await userLogoutUsingPost()
+  if (res.data.code === 0){
+    loginUserStore.setLoginUser({
+      userName:'未登录'
+    })
+    message.success('注销成功')
+  }else {
+    message.error('注销失败' + res.data.message)
+  }
 }
 </script>
 

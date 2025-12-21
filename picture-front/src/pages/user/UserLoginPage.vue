@@ -19,14 +19,14 @@
         name="userPassword"
         :rules="[
           { required: true, message: '请输入密码' },
-          {min:6,message: '密码长度不得小于6位'},
+          {min:8,message: '密码长度不得小于8位'},
           ]"
       >
         <a-input-password v-model:value="formState.userPassword" placeholder="请输入密码"/>
       </a-form-item>
       <div class="tips">
         没有账号？
-        <router-link to="/user/register">去注册</router-link>
+        <router-link to="user/register">去注册</router-link>
       </div>
 
       <a-form-item >
@@ -43,7 +43,7 @@ import { message } from 'ant-design-vue';
 import { userLoginUsingPost } from '@/api/userController';
 
 const loginUserStore = useLoginUserStore()
-const router = useRouter();
+const router = useRouter()
 
 const formState = reactive<API.UserLoginRequest>({
   userAccount: '',
@@ -87,3 +87,4 @@ const handleSubmit = async (values: any) => {
   margin-bottom: 16px;
 }
 </style>
+

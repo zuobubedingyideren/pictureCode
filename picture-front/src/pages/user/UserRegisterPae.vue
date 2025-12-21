@@ -55,17 +55,17 @@ import { userLoginUsingPost } from '@/api/userController';
 const loginUserStore = useLoginUserStore()
 const router = useRouter();
 
-const formState = reactive<API.UserLoginRequest>({
+const formState = reactive<API.UserRegisterRequest>({
   userAccount: '',
   userPassword: '',
   checkPassword: '',
 });
 const handleSubmit = async (values: any) => {
-  if (values.userPassword != values.checkPassword) {
+  if (values.userPassword !== values.checkPassword) {
     message.error('两次输入的密码不一致');
     return;
   }
-  const res = await userResiterUsingPost(values)
+  const res = await userRegisterUsingPost(values)
 //   注册成功，把注册状态保存到全局状态中去
   if(res.data.code === 0 && res.data.data){
     // await loginUserStore.fetchLoginUser()
