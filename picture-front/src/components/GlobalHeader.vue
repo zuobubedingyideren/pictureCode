@@ -24,6 +24,7 @@
               <a-space>
                 <a-avatar :src="loginUserStore.loginUser.userAvatar" />
                 {{ loginUserStore.loginUser.userName ?? '无名' }}
+              </a-space>
                 <template #overlay>
                   <a-menu>
                     <a-menu-item @click="doLogout">
@@ -32,7 +33,6 @@
                     </a-menu-item>
                   </a-menu>
                 </template>
-              </a-space>
             </a-dropdown>
           </div>
           <div v-else>
@@ -49,8 +49,12 @@ import { HomeOutlined ,LogoutOutlined} from '@ant-design/icons-vue'
 import type { MenuProps } from 'ant-design-vue'
 import { useRouter } from 'vue-router'
 import { useLoginUserStore } from '@/stores/useLoginUserStore'
+import { userLogoutUsingPost } from '@/api/userController'
+import { message } from 'ant-design-vue';
 
 const loginUserStore = useLoginUserStore()
+
+// console.log('我的头像是'+ loginUserStore.loginUser.userAvatar)
 
 const items = ref<MenuProps['items']>([
   {
@@ -88,14 +92,16 @@ const doMenuClick = ({ key }: { key: string }) => {
 
 // 用户注销功能
 const doLogout = async () => {
+  console.log('点击了头像')
   const res = await userLogoutUsingPost()
   if (res.data.code === 0){
     loginUserStore.setLoginUser({
       userName:'未登录'
     })
-    message.success('注销成功')
+    message.success('退出登录成功')
+    router.push('/user/login')
   }else {
-    message.error('注销失败' + res.data.message)
+    message.error('退出登录失败' + res.data.message)
   }
 }
 </script>

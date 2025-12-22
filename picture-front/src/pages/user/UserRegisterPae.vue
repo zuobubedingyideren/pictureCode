@@ -50,7 +50,7 @@ import { reactive } from 'vue';
 import { useRouter } from 'vue-router';
 import { useLoginUserStore } from '@/stores/useLoginUserStore';
 import { message } from 'ant-design-vue';
-import { userLoginUsingPost } from '@/api/userController';
+import { userRegisterUsingPost } from '@/api/userController';
 
 const loginUserStore = useLoginUserStore()
 const router = useRouter();
