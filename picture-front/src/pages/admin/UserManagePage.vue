@@ -1,6 +1,20 @@
 <template>
   <div id="userManagePage">
-    <a-table :columns="columns" :data-source="datalist">
+<!--    搜索框-->
+    <a-form layout="inline" :model="searchParams" @finish="doSearch">
+      <a-form-item label="账号">
+        <a-input v-model:value="searchParams.userAccount" placeholder="输入账号" allow-clear/>
+      </a-form-item>
+      <a-form-item label="用户名">
+        <a-input v-model:value="searchParams.userName" placeholder="输入用户名" allow-clear/>
+      </a-form-item>
+      <a-form-item>
+        <a-button type="primary" html-type="submit">搜索</a-button>
+      </a-form-item>
+    </a-form>
+    <div style="margin-bottom: 16px" />
+    <!--    表格-->
+    <a-table :columns="columns" :data-source="datalist" :pagination="pagination" @change="doTableChange">
       <template #bodyCell="{ column, record }">
         <template v-if="column.dataIndex === 'userAvatar'">
           <a-image :src="record.userAvatar" :width="120" />
@@ -17,7 +31,7 @@
           {{dayjs(record.createTime).format('YYYY-MM-DD HH:mm:ss')}}
         </template>
         <template v-else-if="column.key === 'action'">
-          <a-button danger>删除</a-button>
+          <a-button danger @click="doDelete(record.id)">删除</a-button>
         </template>
       </template>
     </a-table>
@@ -25,8 +39,8 @@
 </template>
 <script lang="ts" setup>
 import { SmileOutlined, DownOutlined } from '@ant-design/icons-vue'
-import { onMounted, ref } from 'vue'
-import { listUserVoByPageUsingPost } from '@/api/userController'
+import { computed, onMounted, ref } from 'vue'
+import { deleteUserUsingPost, listUserVoByPageUsingPost } from '@/api/userController'
 import {message} from 'ant-design-vue'
 import dayjs from 'dayjs'
 
@@ -60,10 +74,6 @@ const columns = [
     dataIndex: 'createTime',
   },
   {
-    title: '更新时间',
-    dataIndex: 'updateTime',
-  },
-  {
     title: '操作',
     key: 'action',
   },
@@ -76,12 +86,14 @@ const total = ref(0)
 const searchParams = ref<API.UserQueryRequest>({
   current: 1,
   pageSize: 10,
+  sortField: 'createTime',
+  sortOrder:'ascend'
 })
 
 // 获取数据
 const fetchData = async () => {
   const res = await listUserVoByPageUsingPost( {
-    ...searchParams,
+    ...searchParams.value,
   })
   if (res.data.code === 0 && res.data.data){
     datalist.value = res.data.data.records ?? []
@@ -95,4 +107,44 @@ const fetchData = async () => {
 onMounted(() => {
   fetchData()
 })
+
+// 分页功能
+const pagination = computed(()=>{
+  return{
+    current: searchParams.value.current,
+    pageSize: searchParams.value.pageSize,
+    total: total,
+    showSizeChanger: true,
+    showTotal: (total) => `共${total}条`
+
+  }
+})
+
+// 表格发生变化时，重新获取数据
+const doTableChange = (page:any)=> {
+  searchParams.value.current = page.current
+  searchParams.value.pageSize = page.pageSize
+  fetchData()
+}
+
+// 搜索框功能
+const doSearch = (value:any)=> {
+  // 重置页码
+  searchParams.value.current = 1
+  fetchData();
+}
+
+// 删除功能
+const doDelete = async (id:string) => {
+  if(!id){
+    return
+  }
+  const res = await deleteUserUsingPost({ id })
+  if(res.data.code === 0){
+    message.success('删除成功')
+    fetchData()
+  } else{
+    message.error('删除失败' + res.data.message)
+  }
+}
 </script>
