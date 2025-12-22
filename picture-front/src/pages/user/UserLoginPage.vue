@@ -26,7 +26,7 @@
       </a-form-item>
       <div class="tips">
         没有账号？
-        <router-link to="user/register">去注册</router-link>
+        <router-link to="/user/register">去注册</router-link>
       </div>
 
       <a-form-item >
