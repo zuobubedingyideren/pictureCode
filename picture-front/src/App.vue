@@ -6,10 +6,10 @@
 
 <script setup lang="ts">
 import BasicLayout from '@/Layout/BasicLayout.vue'
-import { useLoginUserStore } from '@/stores/useLoginUserStore'
-
-const loginUserStore = useLoginUserStore()
-loginUserStore.fetchLoginUser()
+// import { useLoginUserStore } from '@/stores/useLoginUserStore'
+//
+// const loginUserStore = useLoginUserStore()
+// loginUserStore.fetchLoginUser()
 </script>
 
 
