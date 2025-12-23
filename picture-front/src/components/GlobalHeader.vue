@@ -54,9 +54,6 @@ import { message } from 'ant-design-vue';
 
 const loginUserStore = useLoginUserStore()
 
-// console.log('我的头像是'+ loginUserStore.loginUser.userAvatar)
-
-// const items = ref<MenuProps['items']>()
 
 const originItems = [
   {
@@ -69,6 +66,11 @@ const originItems = [
     key: '/admin/userManage',
     label: '用户管理',
     title: '用户管理',
+  },
+  {
+    key: '/add_picture',
+    label: '创建图片',
+    title: '创建图片',
   },
   {
     key: 'others',
