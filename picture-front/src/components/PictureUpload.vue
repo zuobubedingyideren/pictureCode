@@ -72,6 +72,10 @@ const beforeUpload = (file: UploadProps['fileList'][number]) => {
   min-width: 152px;
   min-height: 152px;
 }
+.picture-upload img{
+  max-width: 100%;
+  max-height:480px
+}
 .avatar-uploader > .ant-upload {
   width: 128px;
   height: 128px;
