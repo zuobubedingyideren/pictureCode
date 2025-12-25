@@ -40,7 +40,7 @@
         </template>
         <!--        标签-->
         <template v-if="column.dataIndex === 'tag'">
-          <a-tag v-for="tag in JSON.parse(record.tag || [])" :key="tag">
+          <a-tag v-for="tag in JSON.parse(record.tags || [])" :key="tag">
             {{ tag }}
           </a-tag>
         </template>
