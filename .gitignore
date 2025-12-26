@@ -2,3 +2,6 @@
 .vscode
 .idea/misc.xml
 .idea/compiler.xml
+# 本地开发配置，包含敏感信息
+picture-end/src/main/resources/application-dev.yaml
+
