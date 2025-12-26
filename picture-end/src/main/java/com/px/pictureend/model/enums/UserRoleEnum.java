@@ -1,6 +1,7 @@
 package com.px.pictureend.model.enums;
 
 import cn.hutool.core.util.ObjUtil;
+import lombok.Getter;
 
 /**
  * packageName: com.px.pictureend.model.enums
@@ -11,6 +12,7 @@ import cn.hutool.core.util.ObjUtil;
  * @date: 2025/12/4 14:51
  * @description: TODO
  */
+@Getter
 public enum UserRoleEnum {
     USER("用户","user"),
     ADMIN("管理员","admin");

@@ -1,0 +1,46 @@
+package com.px.pictureend.model.dto.picture;
+
+import lombok.Data;
+
+import java.io.Serializable;
+import java.util.List;
+
+/**
+ * packageName: com.px.pictureend.model.dto.picture
+ *
+ * @author: idpeng
+ * @version: 1.0
+ * @className: PictureEditRequest
+ * @date: 2025/12/23 23:37
+ * @description: 图片修改请求体
+ */
+@Data
+public class PictureEditRequest implements Serializable {
+    /**
+     * id
+     */
+    private Long id;
+
+    /**
+     * 图片名称
+     */
+    private String name;
+
+    /**
+     * 简介
+     */
+    private String introduction;
+
+    /**
+     * 分类
+     */
+    private String category;
+
+    /**
+     * 标签
+     */
+    private List<String> tags;
+
+    private static final long serialVersionUID = 1L;
+
+}

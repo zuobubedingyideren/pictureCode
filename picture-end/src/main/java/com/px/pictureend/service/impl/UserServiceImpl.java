@@ -11,6 +11,7 @@ import com.px.pictureend.exception.ErrorCode;
 import com.px.pictureend.mapper.UserMapper;
 import com.px.pictureend.model.dto.user.UserQueryRequest;
 import com.px.pictureend.model.entity.User;
+import com.px.pictureend.model.enums.UserRoleEnum;
 import com.px.pictureend.model.vo.user.LoginUserVO;
 import com.px.pictureend.model.vo.user.UserVO;
 import com.px.pictureend.service.UserService;
@@ -18,7 +19,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 
 import javax.servlet.http.HttpServletRequest;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -254,6 +254,16 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     public String getEncryptedPassword(String userPassword) {
        final String SALT = "tiantianxiangshang";
        return DigestUtils.md5DigestAsHex((SALT + userPassword).getBytes());
+    }
+
+    /**
+     * 判断是否为管理员
+     * @param user 用户
+     * @return 是否为管理员
+     */
+    @Override
+    public boolean isAdmin(User user) {
+        return user != null && UserRoleEnum.ADMIN.getValue().equals(user.getUserRole());
     }
 }
 
