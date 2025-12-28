@@ -27,7 +27,7 @@
               {{ picture.category ?? '默认' }}
             </a-descriptions-item>
             <a-descriptions-item label="标签">
-              <a-tag v-for="tag in picture.tags" :key="tag">
+              <a-tag v-for="tag in (picture.tags || [])" :key="tag">
                 {{ tag }}
               </a-tag>
             </a-descriptions-item>
@@ -69,18 +69,21 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, onMounted, ref, h, computed } from 'vue'
+import { onMounted, ref, h, computed } from 'vue'
 import { message } from 'ant-design-vue'
 import { DeleteOutlined, EditOutlined, DownloadOutlined } from '@ant-design/icons-vue'
 import { useRouter } from 'vue-router'
 import { downloadImage, formatSize } from '@/utils'
+import { deletePictureUsingPost, getPictureVoByIdUsingGet } from '@/api/tupianjiekou'
+import { useLoginUserStore } from '@/stores/useLoginUserStore'
 
-interface props {
+interface Props {
   id: string | number
 }
 
-const props = defineProps<props>()
+const props = defineProps<Props>()
 const picture = ref<API.PictureVO>({})
+const loginUserStore = useLoginUserStore()
 
 // 判断编辑权限
 const canEdit = computed(() => {

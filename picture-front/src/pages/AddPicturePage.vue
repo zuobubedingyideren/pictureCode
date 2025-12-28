@@ -1,8 +1,15 @@
 <template>
   <div id="addPicturePage">
     <h2 style="margin-bottom: 16px">{{ route.query?.id ? '修改图片' : ' 创建图片' }}</h2>
-    <!--    图片上传组件-->
-    <PictureUpload :picture="picture" :onSuccess="onSuccess" />
+    <!--    选择上传方式-->
+    <a-tabs v-model:activeKey="uploadType">
+      <a-tab-pane key="file" tab="文件上传">
+        <PictureUpload :picture="picture" :onSuccess="onSuccess" />
+      </a-tab-pane>
+      <a-tab-pane key="url" tab="URL上传" force-render>
+        <UrlPictureUpload :picture="picture" :onSuccess="onSuccess" />
+      </a-tab-pane>
+    </a-tabs>
     <!--    图片信息表单-->
     <a-form
       v-if="picture"
@@ -33,7 +40,7 @@
       <a-form-item name="tags" label="标签">
         <a-select
           v-model:value="pictureForm.tags"
-          :mode="tags"
+          mode="tags"
           :options="tagOption"
           placeholder="输入标签"
           allow-clear
@@ -49,15 +56,21 @@
 <script setup lang="ts">
 import PictureUpload from '@/components/PictureUpload.vue'
 import { onMounted, reactive, ref } from 'vue'
-import { userLoginUsingPost } from '@/api/userController'
 import { message } from 'ant-design-vue'
 import router from '@/router'
 import { useRoute } from 'vue-router'
+import UrlPictureUpload from '@/components/urlPictureUpload.vue'
+import {
+  editPictureUsingPost,
+  getPictureVoByIdUsingGet,
+  listPictureTagCategoryUsingGet,
+} from '@/api/tupianjiekou'
 
-const picture = ref<pictureVO>()
-const pictureForm = reactive<API.pictureEditRequest>({})
+const picture = ref<API.PictureVO>()
+const pictureForm = reactive<API.PictureEditRequest>({})
+const uploadType = ref<'file' | 'url'>('file')
 
-const onSuccess = (newPicture: API.pictureVO) => {
+const onSuccess = (newPicture: API.PictureVO) => {
   picture.value = newPicture
   pictureForm.name = newPicture.name
 }
@@ -90,7 +103,7 @@ const tagOption = ref<string[]>([])
 const getTagCategoryOptions = async () => {
   const res = await listPictureTagCategoryUsingGet()
   // 操作成功
-  if (res.data.data === 0 && res.data.data) {
+  if (res.data.code === 0 && res.data.data) {
     categoryOption.value = (res.data.categorylist ?? []).map((data: string) => {
       return {
         value: data,
@@ -118,9 +131,9 @@ const getOldPicture = async () => {
   const id = route.query?.id
   if (id) {
     const res = await getPictureVoByIdUsingGet({
-      id
+      id:id,
     })
-    if (res.data.code ===0 && res.data.data){
+    if (res.data.code === 0 && res.data.data) {
       const data = res.data.data
       picture.value = data
       pictureForm.name = data.name
