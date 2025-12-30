@@ -4,7 +4,9 @@
       <h2>图片管理</h2>
       <a-space>
         <a-button type="primary" href="/add_picture" target="_blank">+创建图片</a-button>
-        <a-button type="primary" href="/add_picture/batch" target="_blank" ghost>+批量创建图片</a-button>
+        <a-button type="primary" href="/add_picture/batch" target="_blank" ghost
+          >+批量创建图片</a-button
+        >
       </a-space>
     </a-flex>
     <div style="margin-bottom: 16px"></div>
@@ -92,13 +94,13 @@
             <a-button
               v-if="record.reviewStatus !== PIC_REVIEW_STATUS_ENUM.PASS"
               type="link"
-              @click="handleReview(record, PIC_REVIEW_STATUS_ENUM.pass)"
+              @click="handleReview(record, PIC_REVIEW_STATUS_ENUM.PASS)"
               >通过</a-button
             >
             <a-button
               v-if="record.reviewStatus !== PIC_REVIEW_STATUS_ENUM.REJECT"
               type="link"
-              @click="handleReview"
+              @click="handleReview(record, PIC_REVIEW_STATUS_ENUM.REJECT)"
               danger
               >拒绝</a-button
             >
@@ -121,7 +123,11 @@ import {
   PIC_REVIEW_STATUS_MAP,
   PIC_REVIEW_STATUS_OPTIONS,
 } from '@/constants/picture'
-import { deletePictureUsingPost, listPictureByPageUsingPost } from '@/api/tupianjiekou'
+import {
+  deletePictureUsingPost,
+  doPictureReviewUsingPost,
+  listPictureByPageUsingPost,
+} from '@/api/tupianjiekou'
 
 const columns = [
   {
@@ -244,7 +250,7 @@ const doDelete = async (id: string) => {
     message.error('删除失败' + res.data.message)
   }
 }
-const handleReview = async (record: API.picture, reviewStatus: number) => {
+const handleReview = async (record: API.Picture, reviewStatus: number) => {
   const reviewMessage =
     reviewStatus === PIC_REVIEW_STATUS_ENUM.PASS ? '管理员操作通过' : '管理员操作拒绝'
   const res = await doPictureReviewUsingPost({

@@ -1,81 +1,84 @@
 <template>
   <div class="picture-upload">
     <a-upload
-    list-type="picture-card"
-    :show-upload-list="false"
-    :custom-request="handleUpload"
-    :before-upload="beforeUpload"
-  >
-    <img v-if="picture?.url" :src="picture?.url" alt="avatar" />
-    <div v-else>
-      <loading-outlined v-if="loading"></loading-outlined>
-      <plus-outlined v-else></plus-outlined>
-      <div class="ant-upload-text">点击或拖拽上传图片</div>
-    </div>
-  </a-upload>
+      list-type="picture-card"
+      :show-upload-list="false"
+      :custom-request="handleUpload"
+      :before-upload="beforeUpload"
+    >
+      <img v-if="picture?.url" :src="picture?.url" alt="avatar" />
+      <div v-else>
+        <loading-outlined v-if="loading"></loading-outlined>
+        <plus-outlined v-else></plus-outlined>
+        <div class="ant-upload-text">点击或拖拽上传图片</div>
+      </div>
+    </a-upload>
   </div>
 </template>
 <script lang="ts" setup>
-import { ref } from 'vue';
-import { PlusOutlined, LoadingOutlined } from '@ant-design/icons-vue';
-import { message } from 'ant-design-vue';
-import type { UploadChangeParam, UploadProps } from 'ant-design-vue';
+import { ref } from 'vue'
+import { PlusOutlined, LoadingOutlined } from '@ant-design/icons-vue'
+import { message } from 'ant-design-vue'
+import type { UploadChangeParam, UploadProps } from 'ant-design-vue'
 import { uploadPictureUsingPost } from '@/api/tupianjiekou'
 
-interface Props{
+interface Props {
   picture?: API.PictureVO
   onSuccess?: (newPicture: API.PictureVO) => void
 }
 
 const props = defineProps<Props>()
 
-// 上传图片功能
-const handleUpload =async (options: any) => {
-  loading.value = true;
-  try {
-    const params = props.picture?{id:props.picture.id}:{}
-    const res = await uploadPictureUsingPost(params, {} ,options.file)
-    if(res.data.code === 0 && res.data.data){
-      message.success('上传成功！');
-    //   将上传成功的图片信息传递给父组件
-      props.onSuccess?.(res.data.data)
-    }else{
-      message.error('上传失败！' + res.data.message);
-    }
-  }catch(error){
-    console.error('图片上传失败'+ error)
-    message.error('图片上传失败'+error.message)
-    }
-  loading.value = false;
-};
+const loading = ref<boolean>(false)
 
-const loading = ref<boolean>(false);
+// 上传图片功能
+const handleUpload = async ({ file }: any) => {
+  loading.value = true
+  try {
+    console.log('上传文件:', file)
+    const params = props.picture ? { id: props.picture.id } : {}
+    const res = await uploadPictureUsingPost(params, {}, file)
+    console.log('上传结果:', res)
+    if (res.data.code === 0 && res.data.data) {
+      message.success('上传成功！')
+      //   将上传成功的图片信息传递给父组件
+      props.onSuccess?.(res.data.data)
+    } else {
+      message.error('上传失败！' + res.data.message)
+    }
+  } catch (error) {
+    console.error('图片上传失败', error)
+    message.error('图片上传失败')
+  } finally {
+    loading.value = false
+  }
+}
 
 // 上传的校验
 const beforeUpload = (file: UploadProps['fileList'][number]) => {
   // 校验图片格式
-  const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png';
+  const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png'
   if (!isJpgOrPng) {
-    message.error('不支持上传该格式的图片，推荐jpg/png格式的图片');
+    message.error('不支持上传该格式的图片，推荐jpg/png格式的图片')
   }
   // 校验图片大小
-  const isLt2M = file.size / 1024 / 1024 < 2;
+  const isLt2M = file.size / 1024 / 1024 < 2
   if (!isLt2M) {
-    message.error('上传的图片大小不得超过2MB！');
+    message.error('上传的图片大小不得超过2MB！')
   }
-  return isJpgOrPng && isLt2M;
-};
+  return isJpgOrPng && isLt2M
+}
 </script>
 <style scoped>
-.picture-upload :deep(.ant-upload){
+.picture-upload :deep(.ant-upload) {
   width: 100% !important;
   height: 100% !important;
   min-width: 152px;
   min-height: 152px;
 }
-.picture-upload img{
+.picture-upload img {
   max-width: 100%;
-  max-height:480px
+  max-height: 480px;
 }
 .avatar-uploader > .ant-upload {
   width: 128px;

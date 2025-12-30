@@ -57,8 +57,7 @@
 import PictureUpload from '@/components/PictureUpload.vue'
 import { onMounted, reactive, ref } from 'vue'
 import { message } from 'ant-design-vue'
-import router from '@/router'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import UrlPictureUpload from '@/components/urlPictureUpload.vue'
 import {
   editPictureUsingPost,
@@ -75,6 +74,7 @@ const onSuccess = (newPicture: API.PictureVO) => {
   pictureForm.name = newPicture.name
 }
 
+const route = useRoute()
 //提交表单
 const handleSubmit = async (values: any) => {
   const pictureId = picture.value.id
@@ -125,13 +125,13 @@ onMounted(() => {
 })
 
 // 获取老数据
-const route = useRoute()
+const router = useRouter()
 const getOldPicture = async () => {
   //   获取id
   const id = route.query?.id
   if (id) {
     const res = await getPictureVoByIdUsingGet({
-      id:id,
+      id: id,
     })
     if (res.data.code === 0 && res.data.data) {
       const data = res.data.data
