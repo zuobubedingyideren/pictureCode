@@ -10,12 +10,10 @@ import com.px.pictureend.constant.UserConstant;
 import com.px.pictureend.exception.BusinessException;
 import com.px.pictureend.exception.ErrorCode;
 import com.px.pictureend.exception.ThrowUtils;
-import com.px.pictureend.model.dto.picture.PictureEditRequest;
-import com.px.pictureend.model.dto.picture.PictureQueryRequest;
-import com.px.pictureend.model.dto.picture.PictureUpdateRequest;
-import com.px.pictureend.model.dto.picture.PictureUploadRequest;
+import com.px.pictureend.model.dto.picture.*;
 import com.px.pictureend.model.entity.Picture;
 import com.px.pictureend.model.entity.User;
+import com.px.pictureend.model.enums.PictureReviewStatusEnum;
 import com.px.pictureend.model.vo.picture.PictureTagCategory;
 import com.px.pictureend.model.vo.picture.PictureVO;
 import com.px.pictureend.service.PictureService;
@@ -59,7 +57,7 @@ public class PictureController {
      */
     @ApiOperation("上传图片")
     @PostMapping("/upload")
-    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    // @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     public BaseResponse<PictureVO> uploadPicture(
             @RequestPart("file") MultipartFile multipartFile,
             PictureUploadRequest pictureUploadRequest,
@@ -68,6 +66,26 @@ public class PictureController {
         PictureVO pictureVO = pictureService.uploadPicture(multipartFile, pictureUploadRequest, loginUser);
         return ResultUtils.success(pictureVO);
     }
+
+	/**
+     * 上传图片（通过URL）
+     * 该接口允许用户通过提供URL来上传图片
+     *
+     * @param pictureUploadRequest 包含图片上传所需信息的请求对象
+     * @param request HTTP请求对象，用于获取当前登录用户信息
+     * @return BaseResponse<PictureVO> 包含上传结果的响应对象
+     */
+	@ApiOperation("上传图片（通过URL）")
+	@PostMapping("/upload/url")
+	public BaseResponse<PictureVO> uploadPictureByUrl(
+            @RequestBody PictureUploadRequest pictureUploadRequest,
+            HttpServletRequest request) {
+		User loginUser = userService.getLoginUser(request);
+		String fileUrl = pictureUploadRequest.getFileUrl();
+		PictureVO pictureVO = pictureService.uploadPicture(fileUrl, pictureUploadRequest, loginUser);
+		return ResultUtils.success(pictureVO);
+
+	}
 
     /**
      * 删除图片
@@ -101,7 +119,8 @@ public class PictureController {
     @ApiOperation("更新图片, 仅管理员")
     @PostMapping("/update")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
-    public BaseResponse<Boolean> updatePicture(@RequestBody PictureUpdateRequest pictureUpdateRequest) {
+    public BaseResponse<Boolean> updatePicture(@RequestBody PictureUpdateRequest pictureUpdateRequest,
+                                               HttpServletRequest request) {
         if (pictureUpdateRequest == null || pictureUpdateRequest.getId() <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
@@ -115,8 +134,12 @@ public class PictureController {
         // 判断是否存在
         long id = pictureUpdateRequest.getId();
         Picture oldPicture = pictureService.getById(id);
-        ThrowUtils.throwIf(oldPicture == null, ErrorCode.NOT_FOUND_ERROR);
-        // 操作数据库
+	    ThrowUtils.throwIf(oldPicture == null, ErrorCode.NOT_FOUND_ERROR);
+		// 仅管理员或者本人可更新图片
+	    User loginUser = userService.getLoginUser(request);
+		pictureService.fillReviewParams(oldPicture, loginUser);
+
+	    // 操作数据库
         boolean result = pictureService.updateById(picture);
         ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
         return ResultUtils.success(true);
@@ -177,6 +200,8 @@ public class PictureController {
         long size = pictureQueryRequest.getPageSize();
         // 限制爬虫
         ThrowUtils.throwIf(size > 20, ErrorCode.PARAMS_ERROR);
+		// 普通用户仅查看审核通过的图片
+		pictureQueryRequest.setReviewStatus(PictureReviewStatusEnum.PASS.getValue());
         // 查询数据库
         Page<Picture> picturePage = pictureService.page(new Page<>(current, size),
                 pictureService.getQueryWrapper(pictureQueryRequest));
@@ -203,6 +228,8 @@ public class PictureController {
         // 数据校验
         pictureService.validPicture(picture);
         User loginUser = userService.getLoginUser(request);
+		// 填充审核参数
+		pictureService.fillReviewParams(picture, loginUser);
         // 判断是否存在
         long id = pictureEditRequest.getId();
         Picture oldPicture = pictureService.getById(id);
@@ -230,4 +257,44 @@ public class PictureController {
         pictureTagCategory.setCategoryList(categoryList);
         return ResultUtils.success(pictureTagCategory);
     }
+
+
+	/**
+     * 图片审核功能
+     * 该接口用于管理员对图片进行审核，设置审核状态和审核信息
+     *
+     * @param pictureReviewRequest 包含图片审核信息的请求对象，包括图片ID、审核状态和审核信息
+     * @param request HTTP请求对象，用于获取当前登录用户信息
+     * @return BaseResponse<Boolean> 包含审核操作结果的响应对象
+     */
+	@ApiOperation("图片审核功能")
+	@PostMapping("/review")
+	@AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+	public BaseResponse<Boolean> doPictureReview(@RequestBody PictureReviewRequest pictureReviewRequest,
+	                                             HttpServletRequest request) {
+		ThrowUtils.throwIf(pictureReviewRequest == null, ErrorCode.PARAMS_ERROR);
+		User loginUser = userService.getLoginUser(request);
+		pictureService.doPictureReview(pictureReviewRequest, loginUser);
+		return ResultUtils.success(true);
+	}
+
+
+	/**
+	 * 批量上传图片功能
+	 * 该接口用于管理员通过批量抓取方式上传多张图片
+	 *
+	 * @param pictureUploadByBatchRequest 包含批量上传图片所需信息的请求对象
+	 * @param request HTTP请求对象，用于获取当前登录用户信息
+	 * @return BaseResponse<Integer> 包含成功上传图片数量的响应对象
+	 */
+	@ApiOperation("批量上传图片功能")
+	@PostMapping("/upload/batch")
+	@AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+	public BaseResponse<Integer> uploadPictureByBatch(@RequestBody PictureUploadByBatchRequest pictureUploadByBatchRequest,
+	                                                  HttpServletRequest request) {
+		ThrowUtils.throwIf(pictureUploadByBatchRequest == null, ErrorCode.PARAMS_ERROR);
+		User loginUser = userService.getLoginUser(request);
+		int uploadCount = pictureService.uploadPictureByBatch(pictureUploadByBatchRequest, loginUser);
+		return ResultUtils.success(uploadCount);
+	}
 }
