@@ -115,13 +115,15 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture> impl
             pictureId = pictureUploadRequest.getId();
         }
 
-        // 校验图片ID是否存在，如果存在则验证图片记录是否存在
-	    Picture oldPicture = this.getById(pictureId);
-	    ThrowUtils.throwIf(oldPicture == null, ErrorCode.NOT_FOUND_ERROR, "图片不存在");
-	    // 仅本人或管理员可编辑图片
-	    if (!oldPicture.getUserId().equals(loginUser.getId()) && !userService.isAdmin(loginUser)) {
-		    throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
-	    }
+        // 如果是更新图片（pictureId 不为空），需要校验图片是否存在及权限
+        if (pictureId != null) {
+            Picture oldPicture = this.getById(pictureId);
+            ThrowUtils.throwIf(oldPicture == null, ErrorCode.NOT_FOUND_ERROR, "图片不存在");
+            // 仅本人或管理员可编辑图片
+            if (!oldPicture.getUserId().equals(loginUser.getId()) && !userService.isAdmin(loginUser)) {
+                throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
+            }
+        }
 
         // 构建上传路径前缀
         String uploadPathPrefix = String.format("public/%s", loginUser.getId());
