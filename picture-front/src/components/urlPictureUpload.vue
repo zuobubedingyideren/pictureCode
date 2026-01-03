@@ -11,11 +11,8 @@
 </template>
 <script lang="ts" setup>
 import { ref } from 'vue';
-import { PlusOutlined, LoadingOutlined } from '@ant-design/icons-vue';
 import { message } from 'ant-design-vue';
-import type { UploadChangeParam, UploadProps } from 'ant-design-vue';
-import { testUploadFileUsingPost } from '@/api/fileController'
-import { uploadPictureUsingPost } from '@/api/tupianjiekou'
+import { uploadPictureByUrlUsingPost, uploadPictureUsingPost } from '@/api/tupianjiekou'
 
 interface Props{
   picture?: API.PictureVO
@@ -34,7 +31,7 @@ const handleUpload =async () => {
     if (props.picture){
       params.id = props.picture.id
     }
-    const res = await uploadPictureUsingPost(params)
+    const res = await uploadPictureByUrlUsingPost(params)
     if(res.data.code === 0 && res.data.data){
       message.success('上传成功！');
     //   将上传成功的图片信息传递给父组件
