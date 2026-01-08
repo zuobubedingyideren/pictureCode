@@ -78,8 +78,22 @@ const originItems = [
     title: '图片管理',
   },
   {
+    key: '/admin/spaceManage',
+    label: '空间管理',
+    title: '空间管理',
+  },
+  {
     key: 'others',
-    label: h('a', { href: 'https://www.codefather.cn', target: '_blank' }, '编程导航'),
+    label: h('a', {
+      href: 'https://www.codefather.cn',
+      target: '_blank',
+      rel: 'noopener noreferrer',  // 安全性：防止新页面访问 window.opener
+      ariaLabel: '编程导航 - 打开新标签页',  // 无障碍：提供清晰的标签
+      onClick: (e: MouseEvent) => {
+        // 阻止事件冒泡，避免触发菜单的点击处理
+        e.stopPropagation()
+      }
+    }, '编程导航'),
     title: '编程导航',
   },
 ]
@@ -110,6 +124,10 @@ router.afterEach((to, from, next) => {
 
 // 路由跳转事件
 const doMenuClick = ({ key }: { key: string }) => {
+  // 忽略外部链接菜单项（非路由跳转）
+  if (!key.startsWith('/')) {
+    return
+  }
   router.push({
     path: key,
   })
